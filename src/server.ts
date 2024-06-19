@@ -18,6 +18,13 @@ app.use(routes)
 
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
 
+    if(error instanceof ZodError){
+        return res.status(400).send({
+            message: "Erro de validação",
+            issues: error.format()
+        })
+    }
+
     if(error instanceof AppError){
         return res.status(error.statusCode).json({
             status: "Erro",

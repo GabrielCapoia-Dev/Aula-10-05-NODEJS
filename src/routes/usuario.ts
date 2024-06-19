@@ -2,6 +2,13 @@ import Router, { Request, Response } from "express"
 import knex from "../database/knex"
 import AppError from "../utils/AppError";
 import { hash } from 'bcrypt'
+import { z } from "zod"
+
+
+//Importar o zod, comando no console é = npm i zod
+
+
+
 
 const router = Router();
 
@@ -9,11 +16,20 @@ const router = Router();
 // Promise - async
 
 router.post("/", async (req: Request, res: Response) => {
-    const objSalvar = req.body
+
+    const registerBodySchema = z.object({
+        nome: z.string(),
+        email: z.string().email(),
+        senha: z.string({message:"Senha Obrigatória"}).min(6)
+    })
+
+    const objSalvar = registerBodySchema.parse(req.body)
 
     if (!objSalvar?.senha) {
         throw new AppError("Senha Obrigatória")
     }
+
+
 
     objSalvar.senha = await hash(objSalvar.senha, 8)
 
